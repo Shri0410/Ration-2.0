@@ -98,6 +98,7 @@ const TRANSLATIONS = {
     commodity: "Commodity",
     allocation: "Allocation",
     received: "Received",
+    logout: "Logout",
   },
   hi: {
     title: "मेरा राशन 2.0",
@@ -158,6 +159,7 @@ const TRANSLATIONS = {
     commodity: "वस्तु",
     allocation: "आवंटन",
     received: "प्राप्त किया",
+    logout: "लॉग आउट",
   },
   mr: {
     title: "माझा राशन 2.0",
@@ -218,6 +220,7 @@ const TRANSLATIONS = {
     commodity: "वस्तू",
     allocation: "वाटप",
     received: "प्राप्त",
+    logout: "लॉग आउट",
   },
 };
 
@@ -1533,6 +1536,69 @@ const UserDashboard = ({ setView, lang, setLang, t, showToast }) => {
 
       {/* Content Area */}
       <main className="p-4 md:p-8 max-w-6xl mx-auto">{renderContent()}</main>
+    </div>
+  );
+};
+
+// --- DEALER DASHBOARD ---
+const DealerDashboard = ({ setView }) => {
+  return (
+    <div className="min-h-screen bg-slate-100">
+      {/* Dealer Header */}
+      <header className="bg-[#1a1a1a] text-white px-6 py-4 shadow-md">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <div className="bg-white/10 p-2 rounded-lg">
+              <Store className="w-6 h-6 text-[#f1c12a]" />
+            </div>
+            <div>
+              <h1 className="font-bold text-lg">{MOCK_DEALER.name}</h1>
+              <p className="text-gray-400 text-xs flex items-center gap-1">
+                <MapPin size={12} /> {MOCK_DEALER.location} • ID:{" "}
+                {MOCK_DEALER.id}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="hidden md:block text-right">
+              <p className="text-xs text-gray-400">System Status</p>
+              <p className="text-sm font-medium text-green-400 flex items-center gap-1 justify-end">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>{" "}
+                Online
+              </p>
+            </div>
+            <button
+              onClick={() => setView("login")}
+              className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-sm transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto p-6 space-y-6">
+        {/* Stats Row */}
+        <div className="grid md:grid-cols-4 gap-4">
+          <Card className="p-5 flex items-center gap-4 border-l-4 border-l-[#f1c12a]">
+            <div className="bg-yellow-50 p-3 rounded-full text-[#f1c12a]">
+              <Users />
+            </div>
+            <div>
+              <p className="text-slate-500 text-xs uppercase font-bold">
+                Beneficiaries Served
+              </p>
+              <p className="text-2xl font-bold text-slate-800">142</p>
+              <p className="text-xs text-green-600">+12 today</p>
+            </div>
+          </Card>
+          {/* ... rest of dealer stats ... */}
+        </div>
+
+        <div className="flex items-center justify-center h-64 bg-slate-200 rounded-xl border-2 border-dashed border-slate-300 text-slate-500">
+          Dealer Dashboard Content - Simplified for this view
+        </div>
+      </main>
     </div>
   );
 };
