@@ -1048,6 +1048,11 @@ const UserDashboard = ({ setView, lang, setLang, t, showToast }) => {
   const [activeTab, setActiveTab] = useState("home");
   const [activeFeature, setActiveFeature] = useState(null);
 
+  // Scroll to top when tab or feature changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeTab, activeFeature]);
+
   const MENU_ITEMS = [
     {
       id: "members",
@@ -1409,7 +1414,7 @@ const UserDashboard = ({ setView, lang, setLang, t, showToast }) => {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20 md:pb-0 md:pl-64 transition-all">
-      {/* Mobile Navigation Bottom Bar */}
+      {/* Mobile Navigation Bottom Bar with Logout */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around p-3 z-50 pb-safe">
         {[
           { id: "home", icon: User, label: "Home" },
@@ -1428,11 +1433,21 @@ const UserDashboard = ({ setView, lang, setLang, t, showToast }) => {
             <span className="text-[10px] font-medium">{item.label}</span>
           </button>
         ))}
+
+        {/* Added Logout Button to Mobile Nav */}
+        <button
+          onClick={() => setView("login")}
+          className="flex flex-col items-center gap-1 text-red-500"
+        >
+          <LogOut size={20} />
+          <span className="text-[10px] font-medium">{t.logout}</span>
+        </button>
       </div>
 
       {/* Desktop Sidebar */}
       <div className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 bg-[#1a1a1a] text-white flex-col p-6 z-50">
         <div className="flex items-center gap-3 mb-10">
+          {/* Bharat Sarkar Logo added to Dashboard Header */}
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
             alt="Emblem"
@@ -1467,13 +1482,14 @@ const UserDashboard = ({ setView, lang, setLang, t, showToast }) => {
           onClick={() => setView("login")}
           className="flex items-center gap-3 text-gray-400 hover:text-white mt-auto px-4 py-2"
         >
-          <LogOut size={18} /> Logout
+          <LogOut size={18} /> {t.logout}
         </button>
       </div>
 
       {/* Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3 md:hidden">
+          {/* Bharat Sarkar Logo added to Mobile Dashboard Header */}
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
             alt="Emblem"
@@ -1521,69 +1537,6 @@ const UserDashboard = ({ setView, lang, setLang, t, showToast }) => {
   );
 };
 
-// --- DEALER DASHBOARD ---
-const DealerDashboard = ({ setView }) => {
-  return (
-    <div className="min-h-screen bg-slate-100">
-      {/* Dealer Header */}
-      <header className="bg-[#1a1a1a] text-white px-6 py-4 shadow-md">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div className="bg-white/10 p-2 rounded-lg">
-              <Store className="w-6 h-6 text-[#f1c12a]" />
-            </div>
-            <div>
-              <h1 className="font-bold text-lg">{MOCK_DEALER.name}</h1>
-              <p className="text-gray-400 text-xs flex items-center gap-1">
-                <MapPin size={12} /> {MOCK_DEALER.location} • ID:{" "}
-                {MOCK_DEALER.id}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden md:block text-right">
-              <p className="text-xs text-gray-400">System Status</p>
-              <p className="text-sm font-medium text-green-400 flex items-center gap-1 justify-end">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>{" "}
-                Online
-              </p>
-            </div>
-            <button
-              onClick={() => setView("login")}
-              className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-sm transition-colors"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Stats Row */}
-        <div className="grid md:grid-cols-4 gap-4">
-          <Card className="p-5 flex items-center gap-4 border-l-4 border-l-[#f1c12a]">
-            <div className="bg-yellow-50 p-3 rounded-full text-[#f1c12a]">
-              <Users />
-            </div>
-            <div>
-              <p className="text-slate-500 text-xs uppercase font-bold">
-                Beneficiaries Served
-              </p>
-              <p className="text-2xl font-bold text-slate-800">142</p>
-              <p className="text-xs text-green-600">+12 today</p>
-            </div>
-          </Card>
-          {/* ... rest of dealer stats ... */}
-        </div>
-
-        <div className="flex items-center justify-center h-64 bg-slate-200 rounded-xl border-2 border-dashed border-slate-300 text-slate-500">
-          Dealer Dashboard Content - Simplified for this view
-        </div>
-      </main>
-    </div>
-  );
-};
-
 // --- MAIN APP COMPONENT ---
 export default function MeraRationApp() {
   const [view, setView] = useState("login");
@@ -1594,6 +1547,11 @@ export default function MeraRationApp() {
     setNotification({ msg, type });
     setTimeout(() => setNotification(null), 3000);
   };
+
+  // Scroll to top whenever the main view changes (e.g., Login to Dashboard)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [view]);
 
   const Toast = () =>
     notification ? (
