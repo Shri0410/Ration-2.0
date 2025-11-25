@@ -874,13 +874,16 @@ const LoginScreen = ({ setView, showToast, lang, setLang, t }) => {
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // NEW: Aadhaar / Mobile Selection
+  const [loginMethod, setLoginMethod] = useState("aadhaar");
+
   const handleSendOtp = () => {
     if (!idValue) return showToast("Please enter a valid ID", "error");
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
       setStep(2);
-      showToast(`OTP sent to registered mobile ending in ******8829`);
+      showToast(`OTP sent to registered mobile`);
     }, 1500);
   };
 
@@ -896,37 +899,38 @@ const LoginScreen = ({ setView, showToast, lang, setLang, t }) => {
     }, 1500);
   };
 
-  // Updated Aadhaar Validation Handler
+  // UPDATED INPUT HANDLER
   const handleIdChange = (e) => {
     const raw = e.target.value;
-    if (role === "beneficiary") {
-      // Remove non-digits
-      const digits = raw.replace(/\D/g, "");
-      // Limit to 12 digits
-      const limitedDigits = digits.slice(0, 12);
-      // Add dashes
+
+    if (role !== "beneficiary") {
+      setIdValue(raw);
+      return;
+    }
+
+    if (loginMethod === "aadhaar") {
+      const digits = raw.replace(/\D/g, "").slice(0, 12);
       let formatted = "";
-      for (let i = 0; i < limitedDigits.length; i++) {
-        if (i > 0 && i % 4 === 0) {
-          formatted += "-";
-        }
-        formatted += limitedDigits[i];
+      for (let i = 0; i < digits.length; i++) {
+        if (i > 0 && i % 4 === 0) formatted += "-";
+        formatted += digits[i];
       }
       setIdValue(formatted);
     } else {
-      setIdValue(raw);
+      const digits = raw.replace(/\D/g, "").slice(0, 10);
+      setIdValue(digits);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#fff8e1] via-white to-white flex items-center justify-center p-4 relative">
-      {/* Language Switcher Top Right */}
+      {/* Language Switcher */}
       <div className="absolute top-4 right-4 z-50 flex gap-2 bg-white p-1 rounded-lg shadow-sm border border-slate-200">
         {["mr", "hi", "en"].map((l) => (
           <button
             key={l}
             onClick={() => setLang(l)}
-            className={`px-3 py-1 text-xs font-bold rounded uppercase transition-colors ${
+            className={`px-3 py-1 text-xs font-bold rounded uppercase ${
               lang === l
                 ? "bg-[#f1c12a] text-black"
                 : "text-slate-500 hover:bg-slate-100"
@@ -939,57 +943,56 @@ const LoginScreen = ({ setView, showToast, lang, setLang, t }) => {
 
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
         {/* Header */}
-        <div className="bg-[#f1c12a] p-8 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-          <div className="relative z-10">
-            <div className="w-16 h-16 bg-white/30 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
-                alt="Emblem"
-                className="w-10 h-auto"
-              />
-            </div>
-            <h1 className="text-2xl font-bold text-black mb-1">{t.title}</h1>
-            <p className="text-black/70 text-sm font-medium">{t.tagline}</p>
+        <div className="bg-[#f1c12a] p-8 text-center">
+          <div className="w-16 h-16 bg-white/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
+              alt="Emblem"
+              className="w-10 h-auto"
+            />
           </div>
+          <h1 className="text-2xl font-bold text-black">{t.title}</h1>
+          <p className="text-black/70 text-sm font-medium">{t.tagline}</p>
         </div>
 
-        {/* Toggle Role */}
+        {/* Role Switch */}
         <div className="flex border-b border-slate-100">
           <button
             onClick={() => {
               setRole("beneficiary");
               setStep(1);
               setIdValue("");
+              setLoginMethod("aadhaar");
             }}
-            className={`flex-1 py-4 text-sm font-medium transition-colors ${
+            className={`flex-1 py-4 text-sm font-medium ${
               role === "beneficiary"
                 ? "text-[#f1c12a] border-b-2 border-[#f1c12a] bg-yellow-50/50"
-                : "text-slate-500 hover:text-slate-700"
+                : "text-slate-500"
             }`}
           >
             Beneficiary
           </button>
+
           <button
             onClick={() => {
               setRole("dealer");
               setStep(1);
               setIdValue("");
             }}
-            className={`flex-1 py-4 text-sm font-medium transition-colors ${
+            className={`flex-1 py-4 text-sm font-medium ${
               role === "dealer"
                 ? "text-[#f1c12a] border-b-2 border-[#f1c12a] bg-yellow-50/50"
-                : "text-slate-500 hover:text-slate-700"
+                : "text-slate-500"
             }`}
           >
             Dealer / FPS
           </button>
         </div>
 
-        {/* Form */}
+        {/* Main Form */}
         <div className="p-8">
           {step === 1 ? (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="space-y-4">
               <div className="text-center mb-6">
                 <h2 className="text-lg font-semibold text-slate-800">
                   {t.welcome}
@@ -997,18 +1000,67 @@ const LoginScreen = ({ setView, showToast, lang, setLang, t }) => {
                 <p className="text-slate-500 text-sm">{t.enterDetails}</p>
               </div>
 
+              {/* Aadhaar / Mobile Selector (Beneficiary only) */}
+              {role === "beneficiary" && (
+                <div className="flex gap-3 mb-2">
+                  <button
+                    onClick={() => {
+                      setLoginMethod("aadhaar");
+                      setIdValue("");
+                    }}
+                    className={`flex-1 py-2 rounded-lg border text-sm font-medium ${
+                      loginMethod === "aadhaar"
+                        ? "border-[#f1c12a] bg-yellow-50 text-black"
+                        : "border-slate-300 text-slate-500"
+                    }`}
+                  >
+                    Aadhaar Number
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setLoginMethod("mobile");
+                      setIdValue("");
+                    }}
+                    className={`flex-1 py-2 rounded-lg border text-sm font-medium ${
+                      loginMethod === "mobile"
+                        ? "border-[#f1c12a] bg-yellow-50 text-black"
+                        : "border-slate-300 text-slate-500"
+                    }`}
+                  >
+                    Mobile Number
+                  </button>
+                </div>
+              )}
+
+              {/* Final Input */}
               <Input
                 label={
                   role === "beneficiary"
-                    ? "Aadhaar Number"
+                    ? loginMethod === "aadhaar"
+                      ? "Aadhaar Number"
+                      : "Mobile Number"
                     : "FPS License Number"
                 }
                 placeholder={
-                  role === "beneficiary" ? "XXXX-XXXX-XXXX" : "Enter License ID"
+                  role === "beneficiary"
+                    ? loginMethod === "aadhaar"
+                      ? "XXXX-XXXX-XXXX"
+                      : "Enter 10-digit Mobile Number"
+                    : "Enter License ID"
                 }
                 value={idValue}
                 onChange={handleIdChange}
-                maxLength={role === "beneficiary" ? 14 : 20}
+                maxLength={
+                  role === "beneficiary"
+                    ? loginMethod === "aadhaar"
+                      ? 14
+                      : 10
+                    : 20
+                }
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
               />
 
               <Button
@@ -1020,7 +1072,8 @@ const LoginScreen = ({ setView, showToast, lang, setLang, t }) => {
               </Button>
             </div>
           ) : (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+            // OTP Screen
+            <div className="space-y-4">
               <div className="text-center mb-6">
                 <h2 className="text-lg font-semibold text-slate-800">
                   Verify OTP
@@ -1028,18 +1081,14 @@ const LoginScreen = ({ setView, showToast, lang, setLang, t }) => {
                 <p className="text-slate-500 text-sm">{t.verifyText}</p>
               </div>
 
-              <div className="flex justify-center gap-2 mb-6">
-                <input
-                  type="text"
-                  maxLength="6"
-                  value={otp}
-                  onChange={(e) =>
-                    setOtp(e.target.value.replace(/[^0-9]/g, ""))
-                  }
-                  className="w-full text-center text-2xl font-bold tracking-[1em] py-3 border-b-2 border-[#f1c12a] focus:border-[#f1c12a] outline-none bg-transparent transition-colors"
-                  placeholder="• • • • • •"
-                />
-              </div>
+              <input
+                type="text"
+                maxLength="6"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ""))}
+                className="w-full text-center text-2xl font-bold tracking-[1em] py-3 border-b-2 border-[#f1c12a] bg-transparent"
+                placeholder="••••••"
+              />
 
               <Button
                 onClick={handleVerifyOtp}
@@ -1051,7 +1100,7 @@ const LoginScreen = ({ setView, showToast, lang, setLang, t }) => {
 
               <button
                 onClick={() => setStep(1)}
-                className="w-full text-center text-sm text-[#f1c12a] hover:underline mt-4 font-medium"
+                className="w-full text-sm text-[#f1c12a] mt-4"
               >
                 Change ID / Number
               </button>
