@@ -896,6 +896,28 @@ const LoginScreen = ({ setView, showToast, lang, setLang, t }) => {
     }, 1500);
   };
 
+  // Updated Aadhaar Validation Handler
+  const handleIdChange = (e) => {
+    const raw = e.target.value;
+    if (role === "beneficiary") {
+      // Remove non-digits
+      const digits = raw.replace(/\D/g, "");
+      // Limit to 12 digits
+      const limitedDigits = digits.slice(0, 12);
+      // Add dashes
+      let formatted = "";
+      for (let i = 0; i < limitedDigits.length; i++) {
+        if (i > 0 && i % 4 === 0) {
+          formatted += "-";
+        }
+        formatted += limitedDigits[i];
+      }
+      setIdValue(formatted);
+    } else {
+      setIdValue(raw);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#fff8e1] via-white to-white flex items-center justify-center p-4 relative">
       {/* Language Switcher Top Right */}
@@ -978,16 +1000,15 @@ const LoginScreen = ({ setView, showToast, lang, setLang, t }) => {
               <Input
                 label={
                   role === "beneficiary"
-                    ? "Ration Card / Aadhaar Number"
+                    ? "Aadhaar Number"
                     : "FPS License Number"
                 }
                 placeholder={
-                  role === "beneficiary"
-                    ? "Enter 12 digit number"
-                    : "Enter License ID"
+                  role === "beneficiary" ? "XXXX-XXXX-XXXX" : "Enter License ID"
                 }
                 value={idValue}
-                onChange={(e) => setIdValue(e.target.value)}
+                onChange={handleIdChange}
+                maxLength={role === "beneficiary" ? 14 : 20}
               />
 
               <Button
